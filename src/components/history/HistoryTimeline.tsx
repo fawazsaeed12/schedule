@@ -149,55 +149,58 @@ const HistoryTimeline: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-20 px-4">
+    <div className="max-w-5xl mx-auto pb-20 px-2 sm:px-4">
       {/* Header & Stats Overview */}
-      <section className="mb-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-8 pt-4">
+      <section className="mb-8 md:mb-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-8 pt-4">
         <div>
-           <div className="flex items-center gap-3 text-primary mb-2">
-              <TrendingUp className="w-5 h-5 fill-primary/20" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Lifecycle Archives</span>
+           <div className="flex items-center gap-2 md:gap-3 text-primary mb-1 md:mb-2">
+              <TrendingUp className="w-4 h-4 md:w-5 md:h-5 fill-primary/20" />
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">Archives</span>
            </div>
-           <h2 className="text-5xl font-black text-white tracking-tight">History</h2>
-           <p className="text-white/30 mt-2 font-medium">Tracking your semester journey from Day 1.</p>
+           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">History</h2>
+           <p className="text-white/30 mt-1 md:mt-2 font-medium text-xs md:text-base">Tracking your semester journey from Day 1.</p>
         </div>
 
-        <div className="flex bg-white/5 p-2 rounded-2xl border border-white/5 backdrop-blur-3xl shadow-2xl">
-           <div className="px-6 py-2 border-r border-white/5 text-center">
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-0.5">Sessions</p>
-              <p className="text-xl font-black text-white">{totalExpected}</p>
+        <div className="flex bg-white/5 p-1 sm:p-2 rounded-2xl border border-white/5 backdrop-blur-3xl shadow-2xl w-full md:w-auto">
+           <div className="flex-1 md:flex-none px-4 sm:px-6 py-2 border-r border-white/5 text-center">
+              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/30 mb-0.5">Sessions</p>
+              <p className="text-lg sm:text-xl font-black text-white">{totalExpected}</p>
            </div>
-           <div className="px-6 py-2 text-center">
-              <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-0.5">Success Rate</p>
-              <p className="text-xl font-black text-primary">{avgAttendance.toFixed(1)}%</p>
+           <div className="flex-1 md:flex-none px-4 sm:px-6 py-2 text-center">
+              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-primary mb-0.5">Rate</p>
+              <p className="text-lg sm:text-xl font-black text-primary">{avgAttendance.toFixed(1)}%</p>
            </div>
         </div>
       </section>
 
       {/* Mini Stat Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12 relative">
-        <div className="glass-card p-6 bg-emerald-500/[0.03] border-emerald-500/10 overflow-hidden relative">
-          <BarChart3 className="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-500/5 rotate-12" />
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Total Completed</p>
-          <h4 className="text-4xl font-black text-white">{totalCompleted}</h4>
-          <p className="text-[10px] text-white/30 mt-2">Classes you've managed to attend.</p>
+      <section className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-8 md:mb-12 relative">
+        <div className="glass-card p-4 md:p-6 bg-emerald-500/[0.03] border-emerald-500/10 overflow-hidden relative">
+          <BarChart3 className="absolute -right-2 md:-right-4 -bottom-2 md:-bottom-4 w-16 md:w-24 h-16 md:h-24 text-emerald-500/5 rotate-12" />
+          <p className="text-white/40 text-[9px] md:text-xs font-bold uppercase tracking-widest mb-1">Completed</p>
+          <h4 className="text-2xl md:text-4xl font-black text-white">{totalCompleted}</h4>
         </div>
-        <div className="glass-card p-6 bg-rose-500/[0.03] border-rose-500/10">
-          <AlertCircle className="absolute -right-4 -bottom-4 w-24 h-24 text-rose-500/5" />
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Cancelled Slots</p>
-          <h4 className="text-4xl font-black text-white">{totalCancelled}</h4>
-          <p className="text-[10px] text-white/30 mt-2">Total missed classes from university updates.</p>
+        <div className="glass-card p-4 md:p-6 bg-rose-500/[0.03] border-rose-500/10 relative overflow-hidden">
+          <AlertCircle className="absolute -right-2 md:-right-4 -bottom-2 md:-bottom-4 w-16 md:w-24 h-16 md:h-24 text-rose-500/5" />
+          <p className="text-white/40 text-[9px] md:text-xs font-bold uppercase tracking-widest mb-1">Cancelled</p>
+          <h4 className="text-2xl md:text-4xl font-black text-white">{totalCancelled}</h4>
+        </div>
+        <div className="hidden lg:block glass-card p-6 bg-blue-500/[0.03] border-blue-500/10 relative overflow-hidden">
+           <ShieldCheck className="absolute -right-4 -bottom-4 w-24 h-24 text-blue-500/5" />
+           <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Total Expected</p>
+           <h4 className="text-4xl font-black text-white">{totalExpected}</h4>
         </div>
       </section>
 
       {/* Filter Bar - Sticky */}
-      <div className="sticky top-[84px] z-40">
-        <div className="glass-card p-2 bg-background/80 backdrop-blur-xl border-white/5 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
+      <div className="sticky top-[80px] sm:top-[84px] z-40 mb-8 sm:mb-12">
+        <div className="glass-card p-1.5 sm:p-2 bg-background/80 backdrop-blur-xl border-white/5 shadow-2xl flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2">
            <div className="relative flex-1 w-full sm:w-auto">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
               <select 
                 value={subjectFilter}
                 onChange={(e) => setSubjectFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
+                className="w-full bg-white/5 border border-white/5 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
               >
                 <option value="all" className="bg-background text-white">All Subjects</option>
                 {allSubjects.map(s => <option key={s} value={s} className="bg-background text-white">{s}</option>)}
@@ -207,44 +210,44 @@ const HistoryTimeline: React.FC = () => {
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
+                className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-xs sm:text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
               >
                  <option value="all" className="bg-background text-white">All Statuses</option>
-                 <option value="done" className="bg-background text-white text-emerald-400 font-bold">Done</option>
-                 <option value="cancelled" className="bg-background text-white text-rose-400 font-bold">Cancelled</option>
-                 <option value="holiday" className="bg-background text-white text-blue-400 font-bold">Holiday</option>
-                 <option value="pending" className="bg-background text-white text-white/40">Pending</option>
+                 <option value="done" className="bg-background text-white">Done</option>
+                 <option value="cancelled" className="bg-background text-white">Cancelled</option>
+                 <option value="holiday" className="bg-background text-white">Holiday</option>
+                 <option value="pending" className="bg-background text-white">Pending</option>
               </select>
            </div>
            {(subjectFilter !== 'all' || statusFilter !== 'all') && (
              <button 
               onClick={() => { setSubjectFilter('all'); setStatusFilter('all'); }}
-              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
+              className="px-4 py-1.5 md:py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
              >
-               Clear Filters
+               Clear
              </button>
            )}
         </div>
       </div>
 
       {/* Timeline Content */}
-      <div className="space-y-12 mt-8">
+      <div className="space-y-12">
         {Object.keys(groupedDays).length === 0 ? (
-          <div className="py-32 flex flex-col items-center justify-center space-y-4">
-             <div className="p-6 rounded-full bg-white/5 border border-white/5">
-                <Search className="w-10 h-10 text-white/10" />
+          <div className="py-24 md:py-32 flex flex-col items-center justify-center space-y-4">
+             <div className="p-4 md:p-6 rounded-full bg-white/5 border border-white/5">
+                <Search className="w-8 h-8 md:w-10 md:h-10 text-white/10" />
              </div>
-             <div className="text-center">
-                <h3 className="text-xl font-bold text-white">No records found</h3>
-                <p className="text-white/30 text-sm mt-1">Adjust your filters to see more results.</p>
+             <div className="text-center px-4">
+                <h3 className="text-lg md:text-xl font-bold text-white">No records found</h3>
+                <p className="text-white/30 text-xs md:text-sm mt-1">Adjust your filters to see more results.</p>
              </div>
           </div>
         ) : (
           Object.entries(groupedDays).map(([month, monthDays]) => (
             <div key={month} className="space-y-6">
-              <div className="sticky top-[144px] z-30 pt-4 pb-2 bg-gradient-to-b from-background to-transparent">
+              <div className="sticky top-[138px] sm:top-[144px] z-30 pt-4 pb-2 bg-gradient-to-b from-background to-transparent">
                  <div className="flex items-center gap-4">
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/40">{month}</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{month}</h3>
                     <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
                  </div>
               </div>
@@ -292,23 +295,23 @@ const HistoryTimeline: React.FC = () => {
                   const doneCount = visibleSessions.filter(s => s.status === 'done').length;
 
                   return (
-                    <div key={dateStr} className="relative group pl-10 md:pl-16">
-                      <div className="absolute left-3 md:left-6 top-6 bottom-[-24px] w-px bg-white/5 group-last:hidden" />
+                    <div key={dateStr} className="relative group pl-8 md:pl-16">
+                      <div className="absolute left-2.5 md:left-6 top-6 bottom-[-24px] w-px bg-white/5 group-last:hidden" />
                       <div className={cn(
-                        "absolute left-0 md:left-3 top-5 w-6 h-6 rounded-full border-2 z-10 flex items-center justify-center transition-all duration-300",
+                        "absolute left-0 md:left-3 top-5 w-5 h-5 md:w-6 md:h-6 rounded-full border-2 z-10 flex items-center justify-center transition-all duration-300",
                         isHoliday ? "border-blue-500/50 bg-blue-500/10" : "border-white/10 bg-background"
                       )}>
                         <div className={cn(
-                          "w-1.5 h-1.5 rounded-full",
+                          "w-1 md:w-1.5 h-1 md:h-1.5 rounded-full",
                           isHoliday ? "bg-blue-400" : isSameDay(date, new Date()) ? "bg-primary animate-ping" : "bg-white/10"
                         )} />
                       </div>
 
                       <div className={cn(
-                        "glass-card p-5 md:p-6 border-white/5 transition-all duration-300",
+                        "glass-card p-4 md:p-6 border-white/5 transition-all duration-300",
                         isHoliday && "bg-blue-500/[0.02] border-blue-500/10"
                       )}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
                           <div>
                             <div className="flex items-center gap-2">
                                <h4 className="text-lg font-bold text-white">{format(date, 'EEEE, MMM do')}</h4>

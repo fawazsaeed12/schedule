@@ -114,24 +114,24 @@ const TodayView: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-20">
       {/* Dynamic Greeting & Summary */}
-      <section className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <section className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 px-2 sm:px-0">
         <div className="origin-left">
-           <div className="flex items-center gap-3 text-primary mb-2">
-              <Zap className="w-5 h-5 fill-primary/20" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Overview</span>
+           <div className="flex items-center gap-3 text-primary mb-1 md:mb-2">
+              <Zap className="w-4 h-4 md:w-5 md:h-5 fill-primary/20" />
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">Live Overview</span>
            </div>
-           <h2 className="text-5xl font-black text-white tracking-tight">Today</h2>
-           <p className="text-white/30 mt-2 font-medium flex items-center gap-2">
-             <Calendar className="w-4 h-4" />
-             {format(now, 'EEEE, MMMM do, yyyy')}
+           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Today</h2>
+           <p className="text-white/30 mt-1 md:mt-2 font-medium flex items-center gap-2 text-xs md:text-base">
+             <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
+             {format(now, 'EEEE, MMM do')}
            </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
            {!isHoliday && groupedLectures.length > 0 && (
-             <div className="glass-card px-8 py-4 border-primary/20 bg-primary/5 flex flex-col items-center">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Session Progress</span>
-                <span className="text-2xl font-black text-white">{doneCount} <span className="text-white/20">/</span> {groupedLectures.length}</span>
+             <div className="glass-card flex-1 md:flex-none px-4 md:px-8 py-3 md:py-4 border-primary/20 bg-primary/5 flex flex-col items-center justify-center">
+                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary/60 mb-0.5 md:mb-1">Progress</span>
+                <span className="text-lg md:text-2xl font-black text-white">{doneCount} <span className="text-white/20">/</span> {groupedLectures.length}</span>
              </div>
            )}
 
@@ -139,11 +139,11 @@ const TodayView: React.FC = () => {
              <button 
                onClick={() => toggleDayHoliday(dateStr)}
                className={cn(
-                 "h-[68px] px-6 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border font-bold uppercase tracking-widest text-[9px]",
+                 "h-[52px] md:h-[68px] flex-1 md:flex-none px-4 md:px-6 rounded-2xl flex flex-row md:flex-col items-center justify-center gap-2 md:gap-1 transition-all border font-bold uppercase tracking-widest text-[8px] md:text-[9px]",
                  isHoliday ? "bg-rose-500 text-white border-rose-400 shadow-xl shadow-rose-500/20" : "bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white"
                )}
              >
-               <ShieldCheck className="w-4 h-4" />
+               <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4" />
                {isHoliday ? "Holiday Set" : "Mark Holiday"}
              </button>
            )}

@@ -76,21 +76,21 @@ const SubjectStatsCard: React.FC<{ subject: any }> = ({ subject }) => {
             exit={{ height: 0, opacity: 0 }} 
             className="border-t border-white/5 bg-white/[0.01]"
           >
-            <div className="p-6 grid grid-cols-2 gap-6">
+            <div className="p-4 sm:p-6 flex flex-col sm:grid sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-1">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-emerald-400/40" />
                   Successfully Marked
                 </p>
-                <p className="text-3xl font-black text-white">{subject.completed}</p>
+                <p className="text-2xl sm:text-3xl font-black text-white">{subject.completed}</p>
                 <p className="text-[10px] text-white/10">Classes you attended.</p>
               </div>
-              <div className="space-y-1 text-right">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 flex items-center justify-end gap-2">
+              <div className="space-y-1 sm:text-right">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 flex items-center sm:justify-end gap-2">
                   <XCircle className="w-3 h-3 text-rose-400/40" />
                   Cancelled by Admin
                 </p>
-                <p className="text-3xl font-black text-white">{subject.cancelled}</p>
+                <p className="text-2xl sm:text-3xl font-black text-white">{subject.cancelled}</p>
                 <p className="text-[10px] text-white/10">Classes declared as cancelled.</p>
               </div>
             </div>
@@ -133,27 +133,35 @@ const SubjectStats: React.FC = () => {
   );
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-20">
+    <div className="max-w-5xl mx-auto space-y-8 md:space-y-10 pb-20 px-2 sm:px-4">
       {/* Header & Quick stats */}
-      <section className="flex flex-col md:flex-row gap-6">
-         <div className="flex-1">
-            <h2 className="text-4xl font-black text-white tracking-tight">Academic Pulse</h2>
-            <p className="text-white/40 mt-2 text-lg">Statistical analysis of your semester journey.</p>
+      <section className="flex flex-col md:flex-row gap-6 pt-4">
+         <div className="flex-1 origin-left">
+            <div className="flex items-center gap-3 text-primary mb-1 md:mb-2">
+               <BarChart3 className="w-4 h-4 md:w-5 md:h-5 fill-primary/20" />
+               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">Analytics</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Academic Pulse</h2>
+            <p className="text-white/40 mt-1 md:mt-2 text-sm md:text-lg">Statistical analysis of your semester journey.</p>
          </div>
 
-         <div className="flex gap-4">
-            {topSubject && (
-              <div className="glass-card px-6 py-4 border-emerald-500/20 bg-emerald-500/[0.02] flex items-center gap-4">
-                 <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
-                    <Award className="w-6 h-6" />
-                 </div>
-                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Top Record</p>
-                    <p className="text-sm font-bold text-white truncate max-w-[120px]">{topSubject.name}</p>
-                 </div>
-              </div>
-            )}
-         </div>
+         <AnimatePresence>
+          {topSubject && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card px-4 sm:px-6 py-3 sm:py-4 border-emerald-500/20 bg-emerald-500/[0.02] flex items-center gap-3 sm:gap-4 w-fit"
+            >
+               <div className="p-2 sm:p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <Award className="w-5 h-5 sm:w-6 sm:h-6" />
+               </div>
+               <div>
+                  <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-white/30">Top Record</p>
+                  <p className="text-xs sm:text-sm font-bold text-white truncate max-w-[120px] sm:max-w-[150px]">{topSubject.name}</p>
+               </div>
+            </motion.div>
+          )}
+         </AnimatePresence>
       </section>
 
       {/* Controls & Sorting */}

@@ -22,10 +22,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen pb-20 selection:bg-primary/30 selection:text-primary">
+    <div className="min-h-screen pb-24 md:pb-20 selection:bg-primary/30 selection:text-primary">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-20 origin-top">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-12 mb-20 origin-top">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -39,7 +39,7 @@ export default function Home() {
         </AnimatePresence>
       </main>
 
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/60 backdrop-blur-xl px-8 py-3.5 rounded-2xl border border-white/10 text-[10px] font-bold uppercase tracking-[0.4em] text-white/30 shadow-2xl">
+      <div className="hidden md:flex fixed bottom-8 left-1/2 -translate-x-1/2 items-center gap-4 bg-black/60 backdrop-blur-xl px-8 py-3.5 rounded-2xl border border-white/10 text-[10px] font-bold uppercase tracking-[0.4em] text-white/30 shadow-2xl">
         <span className="text-primary/70">Sync Production</span>
         <span className="w-1 h-1 rounded-full bg-white/10" />
         <span className="hover:text-white/60 transition-colors pointer-events-none">Faisalabad Hub</span>
