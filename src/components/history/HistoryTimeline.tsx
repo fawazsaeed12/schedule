@@ -65,7 +65,7 @@ const HistoryTimeline: React.FC = () => {
         if (currentSession && getSimplifiedSubject(currentSession.subject) === simplified) {
           currentSession.slots.push(slot);
         } else {
-          const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && getSimplifiedSubject(o.subject) === simplified);
+          const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id);
           currentSession = {
             subject: sub,
             slots: [slot],
@@ -275,7 +275,7 @@ const HistoryTimeline: React.FC = () => {
                     if (currentSess && getSimplifiedSubject(currentSess.subject) === simplified) {
                       currentSess.slots.push(slot);
                     } else {
-                      const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && getSimplifiedSubject(o.subject) === simplified);
+                      const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id);
                       currentSess = {
                         subject: sub,
                         slots: [slot],

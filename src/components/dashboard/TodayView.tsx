@@ -73,8 +73,7 @@ const TodayView: React.FC = () => {
       } else {
         const override = overrides.find(o => 
           o.date === dateStr && 
-          o.time_slot_id === slot.id && 
-          getSimplifiedSubject(o.subject) === simplified
+          o.time_slot_id === slot.id
         );
         
         currentGroup = {

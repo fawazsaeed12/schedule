@@ -81,8 +81,13 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     if (!error) {
       setOverrides(prev => {
-        const existing = prev.find(o => o.date === override.date && o.subject === override.subject && o.time_slot_id === override.time_slot_id);
-        if (existing) return prev.map(o => (o === existing ? override : o));
+        // MATCH BY SLOT: If a record exists for this date and slot, replace it regardless of naming
+        const existingIdx = prev.findIndex(o => o.date === override.date && o.time_slot_id === override.time_slot_id);
+        if (existingIdx !== -1) {
+          const newOverrides = [...prev];
+          newOverrides[existingIdx] = override;
+          return newOverrides;
+        }
         return [...prev, override];
       });
     }
