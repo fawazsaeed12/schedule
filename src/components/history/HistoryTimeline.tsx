@@ -7,6 +7,7 @@ import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
 import { CheckCircle, XCircle, ShieldCheck, Clock, MinusCircle } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { DayOfWeek } from '@/types';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,12 +52,12 @@ const HistoryTimeline: React.FC = () => {
       <div className="space-y-4">
         {days.map((date) => {
           const dateStr = format(date, 'yyyy-MM-dd');
-          const dayName = format(date, 'EEEE') as any;
+          const dayName = format(date, 'EEEE') as DayOfWeek;
           const dayOverride = dayOverrides.find(o => o.date === dateStr);
           const isHoliday = dayOverride?.is_holiday;
           
           const tt = getTimetableForDate(date, timetables);
-          const schedule = tt?.schedule[dayName] || {};
+          const schedule = (tt?.schedule[dayName] as Record<string, string>) || {};
           const slots = tt?.timeSlots || [];
           const lectures = Object.entries(schedule).filter(([_, sub]) => !!sub);
 

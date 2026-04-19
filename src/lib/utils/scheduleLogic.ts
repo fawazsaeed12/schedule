@@ -1,5 +1,5 @@
 import { format, isAfter, parseISO, startOfDay, addDays } from 'date-fns';
-import { Timetable, AttendanceOverride, DayOverride, SubjectStats } from '../../types';
+import { Timetable, AttendanceOverride, DayOverride, SubjectStats, DayOfWeek } from '../../types';
 import { SEMESTER_START_DATE } from '../constants';
 
 /**
@@ -7,12 +7,17 @@ import { SEMESTER_START_DATE } from '../constants';
  */
 export const getTimetableForDate = (date: Date, timetables: Timetable[]): Timetable | null => {
   if (timetables.length === 0) return null;
+  
+  // Sort by effectiveDate descending
   const sorted = [...timetables].sort((a, b) => 
     parseISO(b.effectiveDate).getTime() - parseISO(a.effectiveDate).getTime()
   );
 
-  const active = sorted.find(t => !isAfter(parseISO(t.effectiveDate), startOfDay(date)));
-  return active || (timetables.length > 0 ? timetables[0] : null);
+  const targetDate = startOfDay(date);
+  const active = sorted.find(t => !isAfter(parseISO(t.effectiveDate), targetDate));
+  
+  // If no "active" found, fallback to the earliest timetable in the list
+  return active || sorted[sorted.length - 1];
 };
 
 /**
@@ -28,20 +33,29 @@ export const calculateAllStats = (
   const start = parseISO(SEMESTER_START_DATE);
   const end = startOfDay(currentDate);
 
+  // Pre-process overrides for O(1) lookup: date_slotId_subject -> status
+  const overrideMap = new Map<string, string>();
+  overrides.forEach(o => {
+    overrideMap.set(`${o.date}_${o.time_slot_id}_${o.subject}`, o.status);
+  });
+
+  // Pre-process holiday dates for O(1) lookup
+  const holidaySet = new Set(dayOverrides.filter(o => o.is_holiday).map(o => o.date));
+
   let iter = start;
   while (!isAfter(iter, end)) {
     const dateStr = format(iter, 'yyyy-MM-dd');
-    const dayName = format(iter, 'EEEE') as any;
     
-    const dayOverride = dayOverrides.find(o => o.date === dateStr);
-    if (dayOverride?.is_holiday) {
+    if (holidaySet.has(dateStr)) {
       iter = addDays(iter, 1);
       continue;
     }
 
+    const dayName = format(iter, 'EEEE') as DayOfWeek;
     const tt = getTimetableForDate(iter, timetables);
+    
     if (tt) {
-      const daySchedule = tt.schedule[dayName] || {};
+      const daySchedule = (tt.schedule[dayName] as Record<string, string>) || {};
       
       Object.entries(daySchedule).forEach(([slotId, subject]) => {
         if (!subject) return;
@@ -50,18 +64,17 @@ export const calculateAllStats = (
           stats[subject] = { name: subject, expected: 0, completed: 0, cancelled: 0 };
         }
 
-        const override = overrides.find(o => o.date === dateStr && o.subject === subject && o.time_slot_id === slotId);
+        const status = overrideMap.get(`${dateStr}_${slotId}_${subject}`) || 'pending';
         
-        if (override) {
-          if (override.status === 'done') {
-            stats[subject].expected++;
+        // Logic: 'holiday' (on slot) and 'cancelled' don't count towards desired attendance total
+        // But we track 'cancelled' for statistical purposes
+        if (status !== 'holiday') {
+          stats[subject].expected++;
+          if (status === 'done') {
             stats[subject].completed++;
-          } else if (override.status === 'cancelled') {
-            stats[subject].expected++;
+          } else if (status === 'cancelled') {
             stats[subject].cancelled++;
           }
-        } else {
-          stats[subject].expected++;
         }
       });
     }

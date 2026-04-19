@@ -8,6 +8,7 @@ import { Clock, CheckCircle, XCircle, MinusCircle, ShieldCheck } from 'lucide-re
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { DayOfWeek } from '@/types';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,13 +21,13 @@ const TodayView: React.FC = () => {
 
   const now = new Date();
   const dateStr = format(now, 'yyyy-MM-dd');
-  const dayName = format(now, 'EEEE') as any;
+  const dayName = format(now, 'EEEE') as DayOfWeek;
 
   const currentTimetable = getTimetableForDate(now, timetables);
   const dayOverride = dayOverrides.find(o => o.date === dateStr);
   const isHoliday = dayOverride?.is_holiday;
 
-  const schedule = currentTimetable?.schedule[dayName] || {};
+  const schedule = (currentTimetable?.schedule[dayName] as Record<string, string>) || {};
   const timeSlots = currentTimetable?.timeSlots || [];
 
   const handleStatusToggle = (subject: string, slotId: string, currentStatus?: string) => {
