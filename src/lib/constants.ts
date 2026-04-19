@@ -8,7 +8,7 @@ export const DAYS: DayOfWeek[] = [
 ];
 
 export const INITIAL_TIMETABLE_DATES = [
-  '2026-02-16', '2026-02-18', '2026-02-22', '2026-03-01', '2026-03-07', '2026-03-24', '2026-03-29'
+  '2026-02-16', '2026-02-18', '2026-02-22', '2026-03-01', '2026-03-07', '2026-03-24', '2026-03-29', '2026-04-20'
 ];
 
 const STANDARD_SLOTS = [
@@ -22,6 +22,8 @@ const STANDARD_SLOTS = [
   { id: '8', start: '03:00 PM', end: '04:00 PM' },
   { id: '9', start: '04:00 PM', end: '05:00 PM' },
   { id: '10', start: '05:00 PM', end: '06:00 PM' },
+  { id: '11', start: '06:00 PM', end: '07:00 PM' },
+  { id: '12', start: '07:00 PM', end: '08:00 PM' },
 ];
 
 const RAMADAN_SLOTS = [
@@ -130,7 +132,7 @@ export const SEED_TIMETABLES: Timetable[] = [
   // Phase 4 - Final Standard (Mar 29)
   {
     id: 'p4-standard-final',
-    name: 'Standard (Phase 4 - Final)',
+    name: 'Standard (Phase 4)',
     effectiveDate: '2026-03-29',
     timeSlots: STANDARD_SLOTS,
     schedule: {
@@ -139,6 +141,50 @@ export const SEED_TIMETABLES: Timetable[] = [
       Wednesday: { '1': 'Basic Mathematics-II (R105)', '2': 'Discrete Structures (R117)', '3': 'Expository Writings (R128)', '4': 'Object Oriented Programming (R128)', '8': 'Digital Logic Design Lab (R104)', '9': 'Digital Logic Design Lab (R104)' },
       Thursday: { '1': 'Expository Writings (R101)', '2': 'Professional Practices (R116)', '3': 'Basic Mathematics-II (R116)' },
       Friday: { '1': 'Basic Mathematics-II (R105)', '5': 'Object Oriented Programming Lab (R113)', '6': 'Object Oriented Programming Lab (R113)', '7': 'Digital Logic Design (R117)', '8': 'Professional Practices (R128)' },
+      Saturday: {}, Sunday: {},
+    }
+  },
+  // Phase 5 - Spring-26 New Timetable (Apr 20)
+  {
+    id: 'p5-spring26',
+    name: 'Standard (Phase 5 - Apr 20)',
+    effectiveDate: '2026-04-20',
+    timeSlots: STANDARD_SLOTS,
+    schedule: {
+      Monday: { 
+        '1': 'Islamic Studies (R126)', 
+        '2': 'Digital Logic Design (R107)', 
+        '3': 'Discrete Structures (R117)', 
+        '5': 'Object Oriented Programming (R123)' 
+      },
+      Tuesday: { 
+        '1': 'Islamic Studies (R127)', 
+        '2': 'Understanding of Holy Quran 2 (R127)', 
+        '4': 'Discrete Structures (R210)', 
+        '5': 'Object Oriented Programming (R116)', 
+        '8': 'Expository Writings (R127)' 
+      },
+      Wednesday: { 
+        '1': 'Basic Mathematics-II (R105)', 
+        '2': 'Discrete Structures (R117)', 
+        '3': 'Expository Writings (R128)', 
+        '4': 'Object Oriented Programming (R128)', 
+        '8': 'Digital Logic Design Lab (R104)', 
+        '9': 'Digital Logic Design Lab (R104)',
+        '10': 'Digital Logic Design Lab (R104)'
+      },
+      Thursday: { 
+        '1': 'Expository Writings (R101)', 
+        '2': 'Professional Practices (R116)', 
+        '3': 'Basic Mathematics-II (R116)' 
+      },
+      Friday: { 
+        '1': 'Basic Mathematics-II (R105)', 
+        '5': 'Object Oriented Programming Lab (R113)', 
+        '6': 'Object Oriented Programming Lab (R113)', 
+        '7': 'Digital Logic Design (R117)', 
+        '8': 'Professional Practices (R128)' 
+      },
       Saturday: {}, Sunday: {},
     }
   },
