@@ -11,6 +11,10 @@ import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DayOfWeek } from '@/types';
 
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 interface GroupedLecture {
   subject: string;
   slots: { id: string, start: string, end: string }[];
