@@ -11,8 +11,10 @@ import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DayOfWeek } from '@/types';
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+interface GroupedLecture {
+  subject: string;
+  slots: { id: string, start: string, end: string }[];
+  status: string;
 }
 
 const TodayView: React.FC = () => {
@@ -28,17 +30,45 @@ const TodayView: React.FC = () => {
 
   const schedule: Record<string, string> = currentTimetable?.schedule[dayName] || {};
   const timeSlots = currentTimetable?.timeSlots || [];
-  const activeLectures = useMemo(() => Object.entries(schedule).filter(([_, sub]) => !!sub), [schedule]);
+
+  // SMART GROUPING: Group consecutive slots of the same subject
+  const groupedLectures = useMemo(() => {
+    const groups: GroupedLecture[] = [];
+    let currentGroup: GroupedLecture | null = null;
+
+    timeSlots.forEach(slot => {
+      const subject = schedule[slot.id];
+      if (!subject) {
+        currentGroup = null;
+        return;
+      }
+
+      const simplified = getSimplifiedSubject(subject);
+      
+      if (currentGroup && getSimplifiedSubject(currentGroup.subject) === simplified) {
+        currentGroup.slots.push(slot);
+      } else {
+        const override = overrides.find(o => 
+          o.date === dateStr && 
+          o.time_slot_id === slot.id && 
+          getSimplifiedSubject(o.subject) === simplified
+        );
+        
+        currentGroup = {
+          subject,
+          slots: [slot],
+          status: override?.status || 'pending'
+        };
+        groups.push(currentGroup);
+      }
+    });
+
+    return groups;
+  }, [schedule, timeSlots, overrides, dateStr]);
 
   const doneCount = useMemo(() => {
-    return overrides.filter(o => 
-      o.date === dateStr && 
-      o.status === 'done' && 
-      activeLectures.some(([slotId, sub]) => 
-        slotId === o.time_slot_id && getSimplifiedSubject(sub) === getSimplifiedSubject(o.subject)
-      )
-    ).length;
-  }, [overrides, dateStr, activeLectures]);
+    return groupedLectures.filter(l => l.status === 'done').length;
+  }, [groupedLectures]);
 
   if (!isLoaded) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -47,20 +77,25 @@ const TodayView: React.FC = () => {
     </div>
   );
 
-  const handleStatusToggle = (subject: string, slotId: string, currentStatus?: string) => {
+  const handleStatusToggle = async (session: GroupedLecture) => {
     if (!isAdmin) return;
     
     let nextStatus: 'pending' | 'done' | 'cancelled' | 'holiday' = 'pending';
-    if (!currentStatus || currentStatus === 'pending') nextStatus = 'done';
-    else if (currentStatus === 'done') nextStatus = 'cancelled';
-    else if (currentStatus === 'cancelled') nextStatus = 'holiday';
+    if (!session.status || session.status === 'pending') nextStatus = 'done';
+    else if (session.status === 'done') nextStatus = 'cancelled';
+    else if (session.status === 'cancelled') nextStatus = 'holiday';
     
-    upsertOverride({
-      date: dateStr,
-      subject,
-      time_slot_id: slotId,
-      status: nextStatus
-    });
+    // Update ALL slots in the session
+    const updates = session.slots.map(slot => 
+      upsertOverride({
+        date: dateStr,
+        subject: session.subject,
+        time_slot_id: slot.id,
+        status: nextStatus
+      })
+    );
+    
+    await Promise.all(updates);
   };
 
   const getStatusColor = (status?: string) => {
@@ -89,10 +124,10 @@ const TodayView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-           {!isHoliday && activeLectures.length > 0 && (
+           {!isHoliday && groupedLectures.length > 0 && (
              <div className="glass-card px-8 py-4 border-primary/20 bg-primary/5 flex flex-col items-center">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Daily Progress</span>
-                <span className="text-2xl font-black text-white">{doneCount} <span className="text-white/20">/</span> {activeLectures.length}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Session Progress</span>
+                <span className="text-2xl font-black text-white">{doneCount} <span className="text-white/20">/</span> {groupedLectures.length}</span>
              </div>
            )}
 
@@ -119,7 +154,7 @@ const TodayView: React.FC = () => {
           <h3 className="text-3xl font-black text-white tracking-tight">University Closure</h3>
           <p className="text-white/30 max-w-sm mt-3 text-lg">No lectures scheduled for today. Enjoy your day off!</p>
         </div>
-      ) : activeLectures.length === 0 ? (
+      ) : groupedLectures.length === 0 ? (
         <div className="glass-card p-20 flex flex-col items-center justify-center text-center">
           <Layout className="w-16 h-16 text-white/5 mb-6" />
           <h3 className="text-2xl font-bold text-white/40 italic">Nothing on the radar...</h3>
@@ -127,27 +162,20 @@ const TodayView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {timeSlots.map((slot) => {
-            const subject = schedule[slot.id];
-            if (!subject) return null;
-
-            const override = overrides.find(o => 
-              o.date === dateStr && 
-              o.time_slot_id === slot.id && 
-              getSimplifiedSubject(o.subject) === getSimplifiedSubject(subject)
-            );
-            const status = override?.status || 'pending';
+          {groupedLectures.map((lecture, idx) => {
+            const firstSlot = lecture.slots[0];
+            const lastSlot = lecture.slots[lecture.slots.length - 1];
 
             return (
               <motion.div
-                key={slot.id}
+                key={`${dateStr}-${lecture.subject}-${idx}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={isAdmin ? { y: -4 } : {}}
-                onClick={() => handleStatusToggle(subject, slot.id, status)}
+                onClick={() => handleStatusToggle(lecture)}
                 className={cn(
                   "p-6 rounded-3xl glass-card border flex flex-col justify-between min-h-[160px] transition-all duration-300 group", 
-                  getStatusColor(status), 
+                  getStatusColor(lecture.status), 
                   isAdmin && "cursor-pointer active:scale-[0.98]"
                 )}
               >
@@ -155,16 +183,21 @@ const TodayView: React.FC = () => {
                    <div className="flex flex-col">
                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">
                         <Clock className="w-3.5 h-3.5" />
-                        {slot.start} — {slot.end}
+                        {firstSlot.start} — {lastSlot.end}
+                        {lecture.slots.length > 1 && (
+                          <span className="bg-white/10 px-1.5 py-0.5 rounded ml-1 tracking-normal font-bold">
+                            {lecture.slots.length}H Session
+                          </span>
+                        )}
                      </div>
-                     <h3 className="text-xl font-black text-white leading-tight tracking-tight mt-1 truncate max-w-[200px]">{subject}</h3>
+                     <h3 className="text-xl font-black text-white leading-tight tracking-tight mt-1 truncate max-w-[200px]">{lecture.subject}</h3>
                    </div>
                    <div className={cn(
                      "w-10 h-10 rounded-2xl flex items-center justify-center bg-black/20",
-                     status === 'done' && "text-emerald-400",
-                     status === 'cancelled' && "text-rose-400"
+                     lecture.status === 'done' && "text-emerald-400",
+                     lecture.status === 'cancelled' && "text-rose-400"
                    )}>
-                      {status === 'done' ? <CheckCircle className="w-5 h-5" /> : status === 'cancelled' ? <XCircle className="w-5 h-5" /> : <Clock className="w-5 h-5 opacity-20" />}
+                      {lecture.status === 'done' ? <CheckCircle className="w-5 h-5" /> : lecture.status === 'cancelled' ? <XCircle className="w-5 h-5" /> : <Clock className="w-5 h-5 opacity-20" />}
                    </div>
                 </div>
 

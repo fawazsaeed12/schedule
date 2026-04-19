@@ -15,6 +15,12 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+interface GroupedSession {
+  subject: string;
+  slots: { id: string, start: string, end: string }[];
+  status: string;
+}
+
 const HistoryTimeline: React.FC = () => {
   const { timetables, overrides, dayOverrides, isAdmin, upsertOverride, toggleDayHoliday, stats, isLoaded } = useSchedule();
   
@@ -45,57 +51,67 @@ const HistoryTimeline: React.FC = () => {
       const tt = getTimetableForDate(date, timetables);
       const schedule: Record<string, string> = tt?.schedule[dayName] || {};
       const dayOverride = dayOverrides.find(o => o.date === dateStr);
+      const ttSlots = tt?.timeSlots || [];
+
+      // Group slots for filtering
+      const sessions: GroupedSession[] = [];
+      let currentSession: GroupedSession | null = null;
       
-      const daySlots = Object.entries(schedule).filter(([_, sub]) => {
-        if (!sub) return false;
-        const simplifiedSub = getSimplifiedSubject(sub);
-        if (subjectFilter !== 'all' && simplifiedSub !== subjectFilter) return false;
-        return true;
+      ttSlots.forEach(slot => {
+        const sub = schedule[slot.id];
+        if (!sub) { currentSession = null; return; }
+        
+        const simplified = getSimplifiedSubject(sub);
+        if (currentSession && getSimplifiedSubject(currentSession.subject) === simplified) {
+          currentSession.slots.push(slot);
+        } else {
+          const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && getSimplifiedSubject(o.subject) === simplified);
+          currentSession = {
+            subject: sub,
+            slots: [slot],
+            status: ov?.status || 'pending'
+          };
+          sessions.push(currentSession);
+        }
       });
 
-      // If subject filter is active, but the day has no such subject, hide it
-      if (subjectFilter !== 'all' && daySlots.length === 0) return false;
+      // Filter by subject
+      const subjectMatchedSessions = sessions.filter(s => {
+        if (subjectFilter === 'all') return true;
+        return getSimplifiedSubject(s.subject) === subjectFilter;
+      });
 
-      // If status filter is active
+      if (subjectFilter !== 'all' && subjectMatchedSessions.length === 0) return false;
+
+      // Filter by status
       if (statusFilter !== 'all') {
         const isDayHoliday = dayOverride?.is_holiday;
         if (statusFilter === 'holiday' && isDayHoliday) return true;
-        
-        // If it's a holiday but we are looking for 'Done', hide it
         if (isDayHoliday && statusFilter !== 'holiday') return false;
 
-        const hasStatus = daySlots.some(([slotId, sub]) => {
-           const simplifiedSub = getSimplifiedSubject(sub);
-           const ov = overrides.find(o => 
-             o.date === dateStr && 
-             o.time_slot_id === slotId && 
-             getSimplifiedSubject(o.subject) === simplifiedSub
-           );
-           const currentStatus = ov?.status || 'pending';
-           return currentStatus === statusFilter;
-        });
-        if (!hasStatus) return false;
+        const statusMatch = subjectMatchedSessions.some(s => s.status === statusFilter);
+        if (!statusMatch) return false;
       }
 
-      return daySlots.length > 0 || !!dayOverride?.is_holiday;
+      return subjectMatchedSessions.length > 0 || !!dayOverride?.is_holiday;
     });
-  }, [allDays, subjectFilter, statusFilter, timetables, dayOverrides, overrides]);
+  }, [allDays, timetables, overrides, dayOverrides, subjectFilter, statusFilter]);
 
   // Group by month
   const groupedDays = useMemo(() => {
-    return filteredDays.reduce((acc, date) => {
+    const groups: Record<string, Date[]> = {};
+    filteredDays.forEach(date => {
       const month = format(date, 'MMMM yyyy');
-      if (!acc[month]) acc[month] = [];
-      acc[month].push(date);
-      return acc;
-    }, {} as Record<string, Date[]>);
+      if (!groups[month]) groups[month] = [];
+      groups[month].push(date);
+    });
+    return groups;
   }, [filteredDays]);
 
-  // Overall Stats
-  const totalExpected = stats.reduce((acc, s) => acc + s.expected, 0);
-  const totalCompleted = stats.reduce((acc, s) => acc + s.completed, 0);
-  const attendanceRate = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
-  const totalCancelled = stats.reduce((acc, s) => acc + s.cancelled, 0);
+  const totalExpected = useMemo(() => stats.reduce((acc, s) => acc + s.expected, 0), [stats]);
+  const totalCompleted = useMemo(() => stats.reduce((acc, s) => acc + s.completed, 0), [stats]);
+  const totalCancelled = useMemo(() => stats.reduce((acc, s) => acc + s.cancelled, 0), [stats]);
+  const avgAttendance = totalExpected > 0 ? (totalCompleted / totalExpected) * 100 : 0;
 
   if (!isLoaded) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -104,49 +120,67 @@ const HistoryTimeline: React.FC = () => {
     </div>
   );
 
-  const handleStatusToggle = (date: string, subject: string, slotId: string, currentStatus?: string) => {
+  const handleStatusToggle = async (dateStr: string, session: GroupedSession) => {
     if (!isAdmin) return;
+    
     let nextStatus: 'pending' | 'done' | 'cancelled' | 'holiday' = 'pending';
-    if (!currentStatus || currentStatus === 'pending') nextStatus = 'done';
-    else if (currentStatus === 'done') nextStatus = 'cancelled';
-    else if (currentStatus === 'cancelled') nextStatus = 'holiday';
-    upsertOverride({ date, subject, time_slot_id: slotId, status: nextStatus });
+    if (!session.status || session.status === 'pending') nextStatus = 'done';
+    else if (session.status === 'done') nextStatus = 'cancelled';
+    else if (session.status === 'cancelled') nextStatus = 'holiday';
+
+    const updates = session.slots.map(slot => 
+      upsertOverride({
+        date: dateStr,
+        subject: session.subject,
+        time_slot_id: slot.id,
+        status: nextStatus
+      })
+    );
+    await Promise.all(updates);
   };
 
-  const getStatusInfo = (status?: string) => {
+  const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'done': return { icon: <CheckCircle className="w-4 h-4 text-emerald-400" />, label: 'Done', color: 'text-emerald-400', bg: 'bg-emerald-400/10' };
-      case 'cancelled': return { icon: <XCircle className="w-4 h-4 text-rose-400" />, label: 'Cancelled', color: 'text-rose-400', bg: 'bg-rose-400/10' };
-      case 'holiday': return { icon: <ShieldCheck className="w-4 h-4 text-blue-400" />, label: 'Holiday', color: 'text-blue-400', bg: 'bg-blue-400/10' };
-      default: return { icon: <Clock className="w-4 h-4 text-white/20" />, label: 'Pending', color: 'text-white/20', bg: 'bg-white/5' };
+      case 'done': return { label: 'Done', color: 'text-emerald-400', bg: 'bg-emerald-500/10' };
+      case 'cancelled': return { label: 'Cancelled', color: 'text-rose-400', bg: 'bg-rose-500/10' };
+      case 'holiday': return { label: 'Holiday', color: 'text-blue-400', bg: 'bg-blue-500/10' };
+      default: return { label: 'Pending', color: 'text-white/20', bg: 'bg-white/5' };
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-32">
-      {/* Semester Highlights */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card p-6 bg-primary/[0.03] border-primary/10 overflow-hidden relative group">
-          <TrendingUp className="absolute -right-4 -bottom-4 w-24 h-24 text-primary/5 group-hover:scale-110 transition-transform duration-700" />
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Attendance Rate</p>
-          <div className="flex items-end gap-2">
-            <h4 className="text-4xl font-black text-white">{attendanceRate}%</h4>
-            <span className="text-emerald-400 text-xs font-bold mb-1.5 flex items-center gap-1">
-               Progressing
-            </span>
-          </div>
-          <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-             <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${attendanceRate}%` }} />
-          </div>
+    <div className="max-w-5xl mx-auto pb-20 px-4">
+      {/* Header & Stats Overview */}
+      <section className="mb-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-8 pt-4">
+        <div>
+           <div className="flex items-center gap-3 text-primary mb-2">
+              <TrendingUp className="w-5 h-5 fill-primary/20" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Lifecycle Archives</span>
+           </div>
+           <h2 className="text-5xl font-black text-white tracking-tight">History</h2>
+           <p className="text-white/30 mt-2 font-medium">Tracking your semester journey from Day 1.</p>
         </div>
 
-        <div className="glass-card p-6 bg-emerald-500/[0.03] border-emerald-500/10">
-          <BarChart3 className="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-500/5" />
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Lectures Done</p>
-          <h4 className="text-4xl font-black text-white">{totalCompleted} <span className="text-sm font-normal text-white/20 tracking-normal">/ {totalExpected}</span></h4>
-          <p className="text-[10px] text-white/30 mt-2">Successful participation across subjects.</p>
+        <div className="flex bg-white/5 p-2 rounded-2xl border border-white/5 backdrop-blur-3xl shadow-2xl">
+           <div className="px-6 py-2 border-r border-white/5 text-center">
+              <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-0.5">Sessions</p>
+              <p className="text-xl font-black text-white">{totalExpected}</p>
+           </div>
+           <div className="px-6 py-2 text-center">
+              <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-0.5">Success Rate</p>
+              <p className="text-xl font-black text-primary">{avgAttendance.toFixed(1)}%</p>
+           </div>
         </div>
+      </section>
 
+      {/* Mini Stat Cards */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12 relative">
+        <div className="glass-card p-6 bg-emerald-500/[0.03] border-emerald-500/10 overflow-hidden relative">
+          <BarChart3 className="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-500/5 rotate-12" />
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Total Completed</p>
+          <h4 className="text-4xl font-black text-white">{totalCompleted}</h4>
+          <p className="text-[10px] text-white/30 mt-2">Classes you've managed to attend.</p>
+        </div>
         <div className="glass-card p-6 bg-rose-500/[0.03] border-rose-500/10">
           <AlertCircle className="absolute -right-4 -bottom-4 w-24 h-24 text-rose-500/5" />
           <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Cancelled Slots</p>
@@ -159,28 +193,28 @@ const HistoryTimeline: React.FC = () => {
       <div className="sticky top-[84px] z-40">
         <div className="glass-card p-2 bg-background/80 backdrop-blur-xl border-white/5 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
            <div className="relative flex-1 w-full sm:w-auto">
-             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-             <select 
-               value={subjectFilter}
-               onChange={(e) => setSubjectFilter(e.target.value)}
-               className="w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
-             >
-               <option value="all" className="bg-background text-white">All Subjects</option>
-               {allSubjects.map(s => <option key={s} value={s} className="bg-background text-white">{s}</option>)}
-             </select>
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+              <select 
+                value={subjectFilter}
+                onChange={(e) => setSubjectFilter(e.target.value)}
+                className="w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
+              >
+                <option value="all" className="bg-background text-white">All Subjects</option>
+                {allSubjects.map(s => <option key={s} value={s} className="bg-background text-white">{s}</option>)}
+              </select>
            </div>
            <div className="flex-1 w-full sm:w-auto">
-             <select 
-               value={statusFilter}
-               onChange={(e) => setStatusFilter(e.target.value)}
-               className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
-             >
-                <option value="all" className="bg-background text-white">All Statuses</option>
-                <option value="done" className="bg-background text-white text-emerald-400 font-bold">Done</option>
-                <option value="cancelled" className="bg-background text-white text-rose-400 font-bold">Cancelled</option>
-                <option value="holiday" className="bg-background text-white text-blue-400 font-bold">Holiday</option>
-                <option value="pending" className="bg-background text-white text-white/40">Pending</option>
-             </select>
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-sm text-white/80 focus:outline-none focus:border-primary/40 appearance-none hover:bg-white/[0.08] transition-all cursor-pointer"
+              >
+                 <option value="all" className="bg-background text-white">All Statuses</option>
+                 <option value="done" className="bg-background text-white text-emerald-400 font-bold">Done</option>
+                 <option value="cancelled" className="bg-background text-white text-rose-400 font-bold">Cancelled</option>
+                 <option value="holiday" className="bg-background text-white text-blue-400 font-bold">Holiday</option>
+                 <option value="pending" className="bg-background text-white text-white/40">Pending</option>
+              </select>
            </div>
            {(subjectFilter !== 'all' || statusFilter !== 'all') && (
              <button 
@@ -194,7 +228,7 @@ const HistoryTimeline: React.FC = () => {
       </div>
 
       {/* Timeline Content */}
-      <div className="space-y-12">
+      <div className="space-y-12 mt-8">
         {Object.keys(groupedDays).length === 0 ? (
           <div className="py-32 flex flex-col items-center justify-center space-y-4">
              <div className="p-6 rounded-full bg-white/5 border border-white/5">
@@ -224,10 +258,38 @@ const HistoryTimeline: React.FC = () => {
                   
                   const tt = getTimetableForDate(date, timetables);
                   const schedule: Record<string, string> = tt?.schedule[dayName] || {};
-                  const slots = tt?.timeSlots || [];
+                  const allSlots = tt?.timeSlots || [];
+
+                  // Group slots for display
+                  const sessions: GroupedSession[] = [];
+                  let currentSess: GroupedSession | null = null;
                   
-                  const dayOverridesForDate = overrides.filter(o => o.date === dateStr);
-                  const doneCount = dayOverridesForDate.filter(o => o.status === 'done').length;
+                  allSlots.forEach(slot => {
+                    const sub = schedule[slot.id];
+                    if (!sub) { currentSess = null; return; }
+                    
+                    const simplified = getSimplifiedSubject(sub);
+                    if (currentSess && getSimplifiedSubject(currentSess.subject) === simplified) {
+                      currentSess.slots.push(slot);
+                    } else {
+                      const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && getSimplifiedSubject(o.subject) === simplified);
+                      currentSess = {
+                        subject: sub,
+                        slots: [slot],
+                        status: ov?.status || 'pending'
+                      };
+                      sessions.push(currentSess);
+                    }
+                  });
+
+                  const visibleSessions = sessions.filter(s => {
+                    if (subjectFilter !== 'all' && getSimplifiedSubject(s.subject) !== subjectFilter) return false;
+                    if (statusFilter !== 'all' && s.status !== statusFilter) return false;
+                    return true;
+                  });
+
+                  if (!isHoliday && visibleSessions.length === 0) return null;
+                  const doneCount = visibleSessions.filter(s => s.status === 'done').length;
 
                   return (
                     <div key={dateStr} className="relative group pl-10 md:pl-16">
@@ -269,7 +331,7 @@ const HistoryTimeline: React.FC = () => {
                             )}
                             {!isHoliday && (
                               <div className="bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/5 flex items-center gap-2">
-                                <span className="text-[10px] font-mono text-white/40">{doneCount}/{Object.values(schedule).filter(Boolean).length} Done</span>
+                                <span className="text-[10px] font-mono text-white/40">{doneCount}/{visibleSessions.length} Sessions</span>
                               </div>
                             )}
                           </div>
@@ -282,25 +344,15 @@ const HistoryTimeline: React.FC = () => {
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {slots.map((slot) => {
-                              const subject = schedule[slot.id];
-                              if (!subject) return null;
-                              if (subjectFilter !== 'all' && getSimplifiedSubject(subject) !== subjectFilter) return null;
-
-                              const override = overrides.find(o => 
-                                o.date === dateStr && 
-                                o.time_slot_id === slot.id && 
-                                getSimplifiedSubject(o.subject) === getSimplifiedSubject(subject)
-                              );
-                              const status = override?.status || 'pending';
-                              if (statusFilter !== 'all' && status !== statusFilter) return null;
-
-                              const info = getStatusInfo(status);
+                            {visibleSessions.map((session, sIdx) => {
+                              const firstSlot = session.slots[0];
+                              const lastSlot = session.slots[session.slots.length - 1];
+                              const info = getStatusInfo(session.status);
 
                               return (
                                 <div 
-                                  key={slot.id} 
-                                  onClick={() => isAdmin && handleStatusToggle(dateStr, subject, slot.id, status)}
+                                  key={`${dateStr}-sess-${sIdx}`} 
+                                  onClick={() => isAdmin && handleStatusToggle(dateStr, session)}
                                   className={cn(
                                     "flex flex-col p-3 rounded-xl bg-white/[0.02] border border-white/5 transition-all relative group/card",
                                     isAdmin ? "cursor-pointer hover:bg-white/[0.05] hover:border-white/10" : "opacity-80"
@@ -312,15 +364,23 @@ const HistoryTimeline: React.FC = () => {
                                       </div>
                                       <div className="flex items-center gap-2">
                                          {!isAdmin && <Lock className="w-3 h-3 text-white/10" />}
-                                         <span className="text-[10px] font-mono text-white/20">{slot.start}</span>
+                                         <span className="text-[10px] font-mono text-white/20 whitespace-nowrap">
+                                           {firstSlot.start.split(' ')[0]} - {lastSlot.end}
+                                         </span>
                                       </div>
                                    </div>
                                    <div className="flex items-center justify-between group/tt">
-                                     <span className="text-sm font-medium text-white/70 truncate mr-2">{subject}</span>
+                                     <span className="text-sm font-medium text-white/70 truncate mr-2">{session.subject}</span>
                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                                         {isAdmin ? <ChevronRight className="w-3 h-3 text-white/20" /> : <Shield className="w-3 h-3 text-white/5" />}
                                      </div>
                                    </div>
+
+                                   {session.slots.length > 1 && (
+                                     <div className="mt-1 text-[8px] font-black uppercase tracking-widest text-white/10">
+                                       {session.slots.length}H Continuous Session
+                                     </div>
+                                   )}
 
                                    {!isAdmin && (
                                      <div className="absolute inset-0 bg-transparent cursor-help" title="Enter Admin Key in Navbar to toggle status" />

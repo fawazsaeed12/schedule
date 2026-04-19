@@ -71,29 +71,41 @@ export const calculateAllStats = (
     const tt = getTimetableForDate(iter, timetables);
     
     if (tt) {
+      const timeSlots = tt.timeSlots;
       const daySchedule = (tt.schedule[dayName] as Record<string, string>) || {};
       
-      Object.entries(daySchedule).forEach(([slotId, subjectName]) => {
-        if (!subjectName) return;
-
-        const subject = getSimplifiedSubject(subjectName);
-
-        if (!stats[subject]) {
-          stats[subject] = { name: subject, expected: 0, completed: 0, cancelled: 0 };
+      // Group consecutive same-subject slots
+      let currentSessionSubject: string | null = null;
+      
+      timeSlots.forEach((slot) => {
+        const subjectName = daySchedule[slot.id];
+        if (!subjectName) {
+          currentSessionSubject = null;
+          return;
         }
 
-        const status = overrideMap.get(`${dateStr}_${slotId}_${subject}`) || 'pending';
-        
-        // Logic: 'holiday' (on slot) and 'cancelled' don't count towards desired attendance total
-        // But we track 'cancelled' for statistical purposes
-        if (status !== 'holiday') {
-          stats[subject].expected++;
-          if (status === 'done') {
-            stats[subject].completed++;
-          } else if (status === 'cancelled') {
-            stats[subject].cancelled++;
+        const subjectBase = getSimplifiedSubject(subjectName);
+
+        // If it's a new subject (not a continuation of the previous slot's lab/session)
+        if (subjectBase !== currentSessionSubject) {
+          currentSessionSubject = subjectBase;
+
+          if (!stats[subjectBase]) {
+            stats[subjectBase] = { name: subjectBase, expected: 0, completed: 0, cancelled: 0 };
+          }
+
+          const status = overrideMap.get(`${dateStr}_${slot.id}_${subjectBase}`) || 'pending';
+          
+          if (status !== 'holiday') {
+            stats[subjectBase].expected++;
+            if (status === 'done') {
+              stats[subjectBase].completed++;
+            } else if (status === 'cancelled') {
+              stats[subjectBase].cancelled++;
+            }
           }
         }
+        // If it was the same subject as previous slot, we just continue (count as 1 session)
       });
     }
 
