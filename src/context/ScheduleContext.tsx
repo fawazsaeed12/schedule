@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Timetable, AttendanceOverride, DayOverride, SubjectStats } from '../types';
 import { supabase } from '../lib/supabase/client';
-import { calculateAllStats } from '../lib/utils/scheduleLogic';
+import { calculateAllStats, getSimplifiedSubject } from '../lib/utils/scheduleLogic';
 import { SEED_TIMETABLES } from '../lib/constants';
 
 interface ScheduleContextType {
