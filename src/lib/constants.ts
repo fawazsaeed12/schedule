@@ -8,7 +8,7 @@ export const DAYS: DayOfWeek[] = [
 ];
 
 export const INITIAL_TIMETABLE_DATES = [
-  '2026-02-16', '2026-02-18', '2026-03-01', '2026-03-07', '2026-03-24'
+  '2026-02-16', '2026-02-18', '2026-02-22', '2026-03-01', '2026-03-07', '2026-03-24', '2026-03-29'
 ];
 
 const STANDARD_SLOTS = [
@@ -52,55 +52,70 @@ export const SEED_TIMETABLES: Timetable[] = [
       Saturday: {}, Sunday: {},
     }
   },
-  // Phase 2 - Ramzan Shift (Feb 18)
+  // Phase 2a - Ramadan Start (Feb 18)
   {
-    id: 'p2-ramadan-v1',
-    name: 'Ramadan (Phase 2)',
+    id: 'p2a-ramadan-v1',
+    name: 'Ramadan (Phase 2a)',
     effectiveDate: '2026-02-18',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (R123)' },
+      Tuesday: { '2': 'ISL-106 (R127)', '3': 'ISL-101 (R127)', '4': 'CS-202 (R210)', '6': 'CS-112 (R210)', '8': 'ENG-108 (R127)' },
+      Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (R128)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
+      Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
+      Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '7': 'CS-201 (R117)', '8': 'GEN-304 (R128)' },
       Saturday: {}, Sunday: {},
     }
   },
-  // Phase 2 - Teacher Update - Rizwana (Mar 1)
+  // Phase 2b - Ramadan (Feb 22)
   {
-    id: 'p2-ramadan-v2',
+    id: 'p2b-ramadan-v2',
+    name: 'Ramadan (Phase 2b)',
+    effectiveDate: '2026-02-22',
+    timeSlots: RAMADAN_SLOTS,
+    schedule: {
+      Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (R123)' },
+      Tuesday: { '2': 'ISL-106 (R127)', '3': 'ISL-101 (R127)', '4': 'CS-202 (R210)', '6': 'CS-112 (R210)', '8': 'ENG-108 (R127)' },
+      Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (R128)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
+      Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
+      Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '7': 'CS-201 (R117)', '8': 'GEN-304 (R128)' },
+      Saturday: {}, Sunday: {},
+    }
+  },
+  // Phase 2c - Ramadan with Rizwana Update (Mar 1)
+  {
+    id: 'p2c-ramadan-v3',
     name: 'Ramadan (Rizwana Update)',
     effectiveDate: '2026-03-01',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112 (Ms. Rizwana)' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112 (Ms. Rizwana)', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112 (Ms. Rizwana)', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (Ms. Rizwana Yasmeen)' },
+      Tuesday: { '1': 'ISL-101 (R127)', '2': 'ISL-106 (R127)', '4': 'CS-202 (R210)', '6': 'CS-112 (Ms. Rizwana Yasmeen)', '8': 'ENG-108 (R127)' },
+      Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (Ms. Rizwana Yasmeen)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
+      Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
+      Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '7': 'CS-201 (R117)', '8': 'GEN-304 (R128)' },
       Saturday: {}, Sunday: {},
     }
   },
-  // Phase 2 - Teacher Update - Faculty A (Mar 7)
+  // Phase 2d - Ramadan with Faculty A Update (Mar 7)
   {
-    id: 'p2-ramadan-v3',
+    id: 'p2d-ramadan-v4',
     name: 'Ramadan (Faculty A Update)',
     effectiveDate: '2026-03-07',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112 (Faculty A)' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112 (Faculty A)', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112 (Faculty A)', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (Faculty A)' },
+      Tuesday: { '1': 'ISL-101 (R127)', '2': 'ISL-106 (R127)', '4': 'CS-202 (R210)', '6': 'CS-112 (Faculty A) (R116)', '8': 'ENG-108 (R127)' },
+      Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (Faculty A)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
+      Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
+      Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '7': 'CS-201 (R117)', '8': 'GEN-304 (R128)' },
       Saturday: {}, Sunday: {},
     }
   },
-  // Phase 3 - Current Regular (Mar 24)
+  // Phase 3 - Back to Standard Hours (Mar 24)
   {
-    id: 'p3-current',
-    name: 'Final Regular (Phase 3)',
+    id: 'p3-standard-v2',
+    name: 'Standard (Phase 3)',
     effectiveDate: '2026-03-24',
     timeSlots: STANDARD_SLOTS,
     schedule: {
@@ -109,6 +124,21 @@ export const SEED_TIMETABLES: Timetable[] = [
       Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (R128)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
       Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
       Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '6-bis': 'CS-201 (R117)', '7': 'GEN-304 (R128)' },
+      Saturday: {}, Sunday: {},
+    }
+  },
+  // Phase 4 - Final Standard (Mar 29)
+  {
+    id: 'p4-standard-final',
+    name: 'Standard (Phase 4 - Final)',
+    effectiveDate: '2026-03-29',
+    timeSlots: STANDARD_SLOTS,
+    schedule: {
+      Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (R123)' },
+      Tuesday: { '1': 'ISL-101 (R127)', '2': 'ISL-106 (R127)', '4': 'CS-202 (R210)', '5': 'CS-112 (R116)', '8': 'ENG-108 (R127)' },
+      Wednesday: { '1': 'MATH-106 (R105)', '2': 'CS-202 (R117)', '3': 'ENG-108 (R128)', '4': 'CS-112 (R128)', '8': 'EE-201 Lab (R104)', '9': 'EE-201 Lab (R104)' },
+      Thursday: { '1': 'ENG-108 (R101)', '2': 'GEN-304 (R116)', '3': 'MATH-106 (R116)' },
+      Friday: { '1': 'MATH-106 (R105)', '5': 'CS-112 Lab (R113)', '6': 'CS-112 Lab (R113)', '7': 'CS-201 (R117)', '8': 'GEN-304 (R128)' },
       Saturday: {}, Sunday: {},
     }
   },
