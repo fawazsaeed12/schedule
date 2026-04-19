@@ -49,11 +49,11 @@ export const SEED_TIMETABLES: Timetable[] = [
     effectiveDate: '2026-02-17',
     timeSlots: STANDARD_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-112 Lab', '8': 'GEN-304' },
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '2': 'Understanding of Holy Quran 2', '3': 'Islamic Studies', '4': 'Discrete Structures', '6': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Object Oriented Programming Lab', '8': 'Professional Practices' },
       Saturday: {},
       Sunday: {},
     }
@@ -65,11 +65,11 @@ export const SEED_TIMETABLES: Timetable[] = [
     effectiveDate: '2026-02-18',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-112 Lab', '8': 'GEN-304' },
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '2': 'Understanding of Holy Quran 2', '3': 'Islamic Studies', '4': 'Discrete Structures', '6': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Object Oriented Programming Lab', '8': 'Professional Practices' },
       Saturday: {},
       Sunday: {},
     }
@@ -81,11 +81,11 @@ export const SEED_TIMETABLES: Timetable[] = [
     effectiveDate: '2026-02-22',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '2': 'Understanding of Holy Quran 2', '3': 'Islamic Studies', '4': 'Discrete Structures', '6': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Digital Logic Design', '8': 'Professional Practices' },
       Saturday: {},
       Sunday: {},
     }
@@ -97,27 +97,59 @@ export const SEED_TIMETABLES: Timetable[] = [
     effectiveDate: '2026-03-01',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' }, // CS-112 now with Ms. Rizwana
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '2': 'Understanding of Holy Quran 2', '3': 'Islamic Studies', '4': 'Discrete Structures', '6': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Digital Logic Design', '8': 'Professional Practices' },
       Saturday: {},
       Sunday: {},
     }
   },
-  // V5 - Teacher Update - Faculty A (Mar 7, 24, 29)
+  // V5 - Teacher Update - Faculty A (Mar 7)
   {
     id: 'v5-teacher-faculty-a',
     name: 'Teacher Update (Faculty A)',
     effectiveDate: '2026-03-07',
     timeSlots: RAMADAN_SLOTS,
     schedule: {
-      Monday: { '1': 'ISL-101', '2': 'CS-201', '3': 'CS-202', '5': 'CS-112' },
-      Tuesday: { '2': 'ISL-106', '3': 'ISL-101', '4': 'CS-202', '6': 'CS-112', '8': 'ENG-108' },
-      Wednesday: { '1': 'MATH-106', '2': 'CS-202', '3': 'ENG-108', '4': 'CS-112', '8': 'EE-201 Lab', '9': 'EE-201 Lab' },
-      Thursday: { '1': 'ENG-108', '2': 'GEN-304', '3': 'MATH-106' },
-      Friday: { '1': 'MATH-106', '5': 'CS-112 Lab', '6': 'CS-112 Lab', '7': 'CS-201', '8': 'GEN-304' },
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '2': 'Understanding of Holy Quran 2', '3': 'Islamic Studies', '4': 'Discrete Structures', '6': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Digital Logic Design', '8': 'Professional Practices' },
+      Saturday: {},
+      Sunday: {},
+    }
+  },
+  // V6 - March Update (Standard Time + Esha)
+  {
+    id: 'v6-march-esha',
+    name: 'Teacher Update (Esha)',
+    effectiveDate: '2026-03-24',
+    timeSlots: STANDARD_SLOTS,
+    schedule: {
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '1': 'Islamic Studies', '2': 'Understanding of Holy Quran 2', '4': 'Discrete Structures', '5': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Digital Logic Design', '8': 'Professional Practices' },
+      Saturday: {},
+      Sunday: {},
+    }
+  },
+  // V7 - Final Update (Sana Maqbool)
+  {
+    id: 'v7-final-sana',
+    name: 'Final Schedule (Sana)',
+    effectiveDate: '2026-03-29',
+    timeSlots: STANDARD_SLOTS,
+    schedule: {
+      Monday: { '1': 'Islamic Studies', '2': 'Digital Logic Design', '3': 'Discrete Structures', '5': 'Object Oriented Programming' },
+      Tuesday: { '1': 'Islamic Studies', '2': 'Understanding of Holy Quran 2', '4': 'Discrete Structures', '5': 'Object Oriented Programming', '8': 'Expository Writings' },
+      Wednesday: { '1': 'Basic Mathematics-II', '2': 'Discrete Structures', '3': 'Expository Writings', '4': 'Object Oriented Programming', '8': 'Digital Logic Design Lab', '9': 'Digital Logic Design Lab' },
+      Thursday: { '1': 'Expository Writings', '2': 'Professional Practices', '3': 'Basic Mathematics-II' },
+      Friday: { '1': 'Basic Mathematics-II', '5': 'Object Oriented Programming Lab', '6': 'Object Oriented Programming Lab', '7': 'Digital Logic Design', '8': 'Professional Practices' },
       Saturday: {},
       Sunday: {},
     }
