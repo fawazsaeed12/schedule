@@ -5,7 +5,8 @@ import { useSchedule } from '@/context/ScheduleContext';
 import { format, eachDayOfInterval, startOfDay, parseISO } from 'date-fns';
 import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
 import { CheckCircle, XCircle, ShieldCheck, Clock, MinusCircle } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
+import { clsx } from 'clsx';
+import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DayOfWeek } from '@/types';
 
@@ -57,7 +58,7 @@ const HistoryTimeline: React.FC = () => {
           const isHoliday = dayOverride?.is_holiday;
           
           const tt = getTimetableForDate(date, timetables);
-          const schedule = (tt?.schedule[dayName] as Record<string, string>) || {};
+          const schedule: Record<string, string> = tt?.schedule[dayName] || {};
           const slots = tt?.timeSlots || [];
           const lectures = Object.entries(schedule).filter(([_, sub]) => !!sub);
 

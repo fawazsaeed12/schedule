@@ -6,7 +6,8 @@ import { useSchedule } from '@/context/ScheduleContext';
 import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
 import { Clock, CheckCircle, XCircle, MinusCircle, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { clsx, type ClassValue } from 'clsx';
+import { clsx } from 'clsx';
+import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DayOfWeek } from '@/types';
 
@@ -27,7 +28,7 @@ const TodayView: React.FC = () => {
   const dayOverride = dayOverrides.find(o => o.date === dateStr);
   const isHoliday = dayOverride?.is_holiday;
 
-  const schedule = (currentTimetable?.schedule[dayName] as Record<string, string>) || {};
+  const schedule: Record<string, string> = currentTimetable?.schedule[dayName] || {};
   const timeSlots = currentTimetable?.timeSlots || [];
 
   const handleStatusToggle = (subject: string, slotId: string, currentStatus?: string) => {
