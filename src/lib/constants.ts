@@ -125,7 +125,7 @@ export const SEED_TIMETABLES: Timetable[] = [
       Tuesday: { '1': 'Islamic Studies (R127)', '2': 'Understanding of Holy Quran 2 (R127)', '4': 'Discrete Structures (R210)', '5': 'Object Oriented Programming (R116)', '8': 'Expository Writings (R127)' },
       Wednesday: { '1': 'Basic Mathematics-II (R105)', '2': 'Discrete Structures (R117)', '3': 'Expository Writings (R128)', '4': 'Object Oriented Programming (R128)', '8': 'Digital Logic Design Lab (R104)', '9': 'Digital Logic Design Lab (R104)' },
       Thursday: { '1': 'Expository Writings (R101)', '2': 'Professional Practices (R116)', '3': 'Basic Mathematics-II (R116)' },
-      Friday: { '1': 'Basic Mathematics-II (R105)', '5': 'Object Oriented Programming Lab (R113)', '6': 'Object Oriented Programming Lab (R113)', '6-bis': 'Digital Logic Design (R117)', '7': 'Professional Practices (R128)' },
+      Friday: { '1': 'Basic Mathematics-II (R105)', '5': 'Object Oriented Programming Lab (R113)', '6': 'Object Oriented Programming Lab (R113)', '7': 'Digital Logic Design (R117)', '8': 'Professional Practices (R128)' },
       Saturday: {}, Sunday: {},
     }
   },
