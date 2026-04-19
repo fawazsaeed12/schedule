@@ -27,7 +27,11 @@ export const getTimetableForDate = (date: Date, timetables: Timetable[]): Timeta
  */
 export const getSimplifiedSubject = (name: string): string => {
   if (!name) return name;
-  const simplified = name.split(' (')[0].trim();
+  let simplified = name.split(' (')[0].trim();
+  
+  // Normalize common variations to ensure historical matching
+  if (simplified === "Expository Writing") simplified = "Expository Writings";
+  
   // Special case for labs
   if (simplified.includes(' Lab')) {
     return simplified.split(' Lab')[0].trim() + ' Lab';
