@@ -28,8 +28,12 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initial Fetch
+  // Initial Fetch & LocalStorage
   useEffect(() => {
+    // Hydrate Admin State
+    const storedAdmin = localStorage.getItem('uni_sync_admin') === 'true';
+    if (storedAdmin) setIsAdmin(true);
+
     const fetchData = async () => {
       try {
         const [ttRes, attRes, dayRes] = await Promise.all([
@@ -57,7 +61,10 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [timetables, overrides, dayOverrides]
   );
 
-  const toggleAdmin = (val: boolean) => setIsAdmin(val);
+  const toggleAdmin = (val: boolean) => {
+    setIsAdmin(val);
+    localStorage.setItem('uni_sync_admin', val ? 'true' : 'false');
+  };
 
   const updateTimetables = async (newTimetables: Timetable[]) => {
     // In a real app, we'd batch update or upsert to Supabase

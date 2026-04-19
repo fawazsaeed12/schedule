@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useSchedule } from '@/context/ScheduleContext';
 import { format, eachDayOfInterval, startOfDay, parseISO, isSameDay } from 'date-fns';
 import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
-import { CheckCircle, XCircle, ShieldCheck, Clock, Calendar, ChevronRight, Filter, Search, TrendingUp, BarChart3, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ShieldCheck, Clock, Calendar, ChevronRight, Filter, Search, TrendingUp, BarChart3, AlertCircle, Lock, Shield } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -45,25 +45,32 @@ const HistoryTimeline: React.FC = () => {
       const schedule: Record<string, string> = tt?.schedule[dayName] || {};
       const dayOverride = dayOverrides.find(o => o.date === dateStr);
       
-      // If filtering by subject, check if subject exists on this day
-      if (subjectFilter !== 'all') {
-        const hasSubject = Object.values(schedule).includes(subjectFilter);
-        if (!hasSubject) return false;
-      }
+      const daySlots = Object.entries(schedule).filter(([_, sub]) => {
+        if (!sub) return false;
+        if (subjectFilter !== 'all' && sub !== subjectFilter) return false;
+        return true;
+      });
 
-      // If filtering by status
+      // If subject filter is active, but the day has no such subject, hide it
+      if (subjectFilter !== 'all' && daySlots.length === 0) return false;
+
+      // If status filter is active
       if (statusFilter !== 'all') {
-        if (statusFilter === 'holiday' && dayOverride?.is_holiday) return true;
+        const isDayHoliday = dayOverride?.is_holiday;
+        if (statusFilter === 'holiday' && isDayHoliday) return true;
         
-        const daySlots = Object.entries(schedule).filter(([_, sub]) => !!sub);
-        const hasStatus = daySlots.some(([slotId, _]) => {
-           const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slotId);
-           return (ov?.status || 'pending') === statusFilter;
+        // If it's a holiday but we are looking for 'Done', hide it
+        if (isDayHoliday && statusFilter !== 'holiday') return false;
+
+        const hasStatus = daySlots.some(([slotId, sub]) => {
+           const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slotId && o.subject === sub);
+           const currentStatus = ov?.status || 'pending';
+           return currentStatus === statusFilter;
         });
         if (!hasStatus) return false;
       }
 
-      return true;
+      return daySlots.length > 0 || !!dayOverride?.is_holiday;
     });
   }, [allDays, subjectFilter, statusFilter, timetables, dayOverrides, overrides]);
 
@@ -211,14 +218,7 @@ const HistoryTimeline: React.FC = () => {
                   const tt = getTimetableForDate(date, timetables);
                   const schedule: Record<string, string> = tt?.schedule[dayName] || {};
                   const slots = tt?.timeSlots || [];
-                  const lectures = Object.entries(schedule).filter(([_, sub]) => {
-                    if (!sub) return false;
-                    if (subjectFilter !== 'all' && sub !== subjectFilter) return false;
-                    return true;
-                  });
-
-                  if (lectures.length === 0 && !isHoliday) return null;
-
+                  
                   const dayOverridesForDate = overrides.filter(o => o.date === dateStr);
                   const doneCount = dayOverridesForDate.filter(o => o.status === 'done').length;
 
@@ -280,7 +280,7 @@ const HistoryTimeline: React.FC = () => {
                               if (!subject) return null;
                               if (subjectFilter !== 'all' && subject !== subjectFilter) return null;
 
-                              const override = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id);
+                              const override = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && o.subject === subject);
                               const status = override?.status || 'pending';
                               if (statusFilter !== 'all' && status !== statusFilter) return null;
 
@@ -289,24 +289,31 @@ const HistoryTimeline: React.FC = () => {
                               return (
                                 <div 
                                   key={slot.id} 
-                                  onClick={() => handleStatusToggle(dateStr, subject, slot.id, status)}
+                                  onClick={() => isAdmin && handleStatusToggle(dateStr, subject, slot.id, status)}
                                   className={cn(
-                                    "flex flex-col p-3 rounded-xl bg-white/[0.02] border border-white/5 transition-all",
-                                    isAdmin ? "cursor-pointer hover:bg-white/[0.05] hover:border-white/10" : "pointer-events-none"
+                                    "flex flex-col p-3 rounded-xl bg-white/[0.02] border border-white/5 transition-all relative group/card",
+                                    isAdmin ? "cursor-pointer hover:bg-white/[0.05] hover:border-white/10" : "opacity-80"
                                   )}
                                 >
                                    <div className="flex items-center justify-between mb-2">
                                       <div className={cn("px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest", info.bg, info.color)}>
                                          {info.label}
                                       </div>
-                                      <span className="text-[10px] font-mono text-white/20">{slot.start}</span>
+                                      <div className="flex items-center gap-2">
+                                         {!isAdmin && <Lock className="w-3 h-3 text-white/10" />}
+                                         <span className="text-[10px] font-mono text-white/20">{slot.start}</span>
+                                      </div>
                                    </div>
                                    <div className="flex items-center justify-between group/tt">
                                      <span className="text-sm font-medium text-white/70 truncate mr-2">{subject}</span>
                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ChevronRight className="w-3 h-3 text-white/20" />
+                                        {isAdmin ? <ChevronRight className="w-3 h-3 text-white/20" /> : <Shield className="w-3 h-3 text-white/5" />}
                                      </div>
                                    </div>
+
+                                   {!isAdmin && (
+                                     <div className="absolute inset-0 bg-transparent cursor-help" title="Enter Admin Key in Navbar to toggle status" />
+                                   )}
                                 </div>
                               );
                             })}
