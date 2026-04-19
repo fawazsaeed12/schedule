@@ -8,7 +8,7 @@ export const DAYS: DayOfWeek[] = [
 ];
 
 export const INITIAL_TIMETABLE_DATES = [
-  '2026-02-17', '2026-02-18', '2026-03-01', '2026-03-07', '2026-03-24'
+  '2026-02-16', '2026-02-18', '2026-03-01', '2026-03-07', '2026-03-24'
 ];
 
 const STANDARD_SLOTS = [
@@ -37,11 +37,11 @@ const RAMADAN_SLOTS = [
 ];
 
 export const SEED_TIMETABLES: Timetable[] = [
-  // Phase 1 - Standard Hours (Feb 17)
+  // Phase 1 - Standard Hours (Feb 16)
   {
     id: 'p1-standard',
     name: 'Standard (Phase 1)',
-    effectiveDate: '2026-02-17',
+    effectiveDate: '2026-02-16',
     timeSlots: STANDARD_SLOTS,
     schedule: {
       Monday: { '1': 'ISL-101 (R126)', '2': 'CS-201 (R107)', '3': 'CS-202 (R117)', '5': 'CS-112 (R123)' },
