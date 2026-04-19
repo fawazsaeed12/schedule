@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { format } from 'date-fns';
+import { format, addDays, isSameDay } from 'date-fns';
 import { useSchedule } from '@/context/ScheduleContext';
 import { getTimetableForDate, getSimplifiedSubject } from '@/lib/utils/scheduleLogic';
 import { Clock, CheckCircle, XCircle, ShieldCheck, Calendar, Zap, Layout, ChevronRight } from 'lucide-react';
@@ -24,11 +24,30 @@ interface GroupedLecture {
 const TodayView: React.FC = () => {
   const { timetables, overrides, dayOverrides, isAdmin, upsertOverride, toggleDayHoliday, isLoaded } = useSchedule();
   
-  const now = new Date();
-  const dateStr = format(now, 'yyyy-MM-dd');
-  const dayName = format(now, 'EEEE') as DayOfWeek;
+  const now = useMemo(() => new Date(), []);
+  
+  // Find the next active day (neither holiday nor empty)
+  const displayDate = useMemo(() => {
+    for (let i = 0; i < 7; i++) {
+      const testDate = addDays(now, i);
+      const testDateStr = format(testDate, 'yyyy-MM-dd');
+      const testDayName = format(testDate, 'EEEE') as DayOfWeek;
+      
+      const isHoliday = dayOverrides.find(o => o.date === testDateStr)?.is_holiday;
+      const testTimetable = getTimetableForDate(testDate, timetables);
+      const schedule = testTimetable?.schedule[testDayName] || {};
+      const hasClasses = Object.values(schedule).some(v => v !== undefined && v !== '');
 
-  const currentTimetable = useMemo(() => getTimetableForDate(now, timetables), [now, timetables]);
+      if (!isHoliday && hasClasses) return testDate;
+    }
+    return now;
+  }, [now, dayOverrides, timetables]);
+
+  const dateStr = format(displayDate, 'yyyy-MM-dd');
+  const dayName = format(displayDate, 'EEEE') as DayOfWeek;
+  const isToday = isSameDay(displayDate, now);
+
+  const currentTimetable = useMemo(() => getTimetableForDate(displayDate, timetables), [displayDate, timetables]);
   const dayOverride = dayOverrides.find(o => o.date === dateStr);
   const isHoliday = dayOverride?.is_holiday;
 
@@ -120,10 +139,12 @@ const TodayView: React.FC = () => {
               <Zap className="w-4 h-4 md:w-5 md:h-5 fill-primary/20" />
               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">Live Overview</span>
            </div>
-           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Today</h2>
+           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+             {isToday ? "Today" : "Up Next"}
+           </h2>
            <p className="text-white/30 mt-1 md:mt-2 font-medium flex items-center gap-2 text-xs md:text-base">
              <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
-             {format(now, 'EEEE, MMM do')}
+             {format(displayDate, 'EEEE, MMM do')}
            </p>
         </div>
 
