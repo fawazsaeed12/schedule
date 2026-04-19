@@ -3,7 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { useSchedule } from '@/context/ScheduleContext';
 import { format, eachDayOfInterval, startOfDay, parseISO, isSameDay } from 'date-fns';
-import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
+import { getTimetableForDate, getSimplifiedSubject } from '@/lib/utils/scheduleLogic';
+import { SEMESTER_START_DATE } from '@/lib/constants';
 import { CheckCircle, XCircle, ShieldCheck, Clock, Calendar, ChevronRight, Filter, Search, TrendingUp, BarChart3, AlertCircle, Lock, Shield } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
@@ -21,7 +22,7 @@ const HistoryTimeline: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const now = startOfDay(new Date());
-  const startDate = parseISO('2026-02-17');
+  const startDate = parseISO(SEMESTER_START_DATE);
   const allDays = useMemo(() => eachDayOfInterval({ start: startDate, end: now }).reverse(), [now, startDate]);
 
   // Derived unique subjects for filter
@@ -30,7 +31,7 @@ const HistoryTimeline: React.FC = () => {
     timetables.forEach(t => {
       Object.values(t.schedule).forEach(day => {
         Object.values(day as Record<string, string>).forEach(sub => {
-          if (sub) subs.add(sub);
+          if (sub) subs.add(getSimplifiedSubject(sub));
         });
       });
     });
@@ -47,7 +48,8 @@ const HistoryTimeline: React.FC = () => {
       
       const daySlots = Object.entries(schedule).filter(([_, sub]) => {
         if (!sub) return false;
-        if (subjectFilter !== 'all' && sub !== subjectFilter) return false;
+        const simplifiedSub = getSimplifiedSubject(sub);
+        if (subjectFilter !== 'all' && simplifiedSub !== subjectFilter) return false;
         return true;
       });
 
@@ -63,7 +65,12 @@ const HistoryTimeline: React.FC = () => {
         if (isDayHoliday && statusFilter !== 'holiday') return false;
 
         const hasStatus = daySlots.some(([slotId, sub]) => {
-           const ov = overrides.find(o => o.date === dateStr && o.time_slot_id === slotId && o.subject === sub);
+           const simplifiedSub = getSimplifiedSubject(sub);
+           const ov = overrides.find(o => 
+             o.date === dateStr && 
+             o.time_slot_id === slotId && 
+             getSimplifiedSubject(o.subject) === simplifiedSub
+           );
            const currentStatus = ov?.status || 'pending';
            return currentStatus === statusFilter;
         });
@@ -278,9 +285,13 @@ const HistoryTimeline: React.FC = () => {
                             {slots.map((slot) => {
                               const subject = schedule[slot.id];
                               if (!subject) return null;
-                              if (subjectFilter !== 'all' && subject !== subjectFilter) return null;
+                              if (subjectFilter !== 'all' && getSimplifiedSubject(subject) !== subjectFilter) return null;
 
-                              const override = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id && o.subject === subject);
+                              const override = overrides.find(o => 
+                                o.date === dateStr && 
+                                o.time_slot_id === slot.id && 
+                                getSimplifiedSubject(o.subject) === getSimplifiedSubject(subject)
+                              );
                               const status = override?.status || 'pending';
                               if (statusFilter !== 'all' && status !== statusFilter) return null;
 

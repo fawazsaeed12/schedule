@@ -21,6 +21,21 @@ export const getTimetableForDate = (date: Date, timetables: Timetable[]): Timeta
 };
 
 /**
+ * Normalizes a subject name by removing room numbers and parentheses.
+ * e.g., "Islamic Studies (R126)" -> "Islamic Studies"
+ * e.g., "Object Oriented Programming (Ms. Rizwana Yasmeen)" -> "Object Oriented Programming"
+ */
+export const getSimplifiedSubject = (name: string): string => {
+  if (!name) return name;
+  const simplified = name.split(' (')[0].trim();
+  // Special case for labs
+  if (simplified.includes(' Lab')) {
+    return simplified.split(' Lab')[0].trim() + ' Lab';
+  }
+  return simplified;
+};
+
+/**
  * Calculates statistics for all subjects.
  */
 export const calculateAllStats = (
@@ -33,10 +48,11 @@ export const calculateAllStats = (
   const start = parseISO(SEMESTER_START_DATE);
   const end = startOfDay(currentDate);
 
-  // Pre-process overrides for O(1) lookup: date_slotId_subject -> status
+  // Pre-process overrides for O(1) lookup: date_slotId_simplifiedSubject -> status
   const overrideMap = new Map<string, string>();
   overrides.forEach(o => {
-    overrideMap.set(`${o.date}_${o.time_slot_id}_${o.subject}`, o.status);
+    const simplified = getSimplifiedSubject(o.subject);
+    overrideMap.set(`${o.date}_${o.time_slot_id}_${simplified}`, o.status);
   });
 
   // Pre-process holiday dates for O(1) lookup
@@ -57,8 +73,10 @@ export const calculateAllStats = (
     if (tt) {
       const daySchedule = (tt.schedule[dayName] as Record<string, string>) || {};
       
-      Object.entries(daySchedule).forEach(([slotId, subject]) => {
-        if (!subject) return;
+      Object.entries(daySchedule).forEach(([slotId, subjectName]) => {
+        if (!subjectName) return;
+
+        const subject = getSimplifiedSubject(subjectName);
 
         if (!stats[subject]) {
           stats[subject] = { name: subject, expected: 0, completed: 0, cancelled: 0 };

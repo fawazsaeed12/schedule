@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { format } from 'date-fns';
 import { useSchedule } from '@/context/ScheduleContext';
-import { getTimetableForDate } from '@/lib/utils/scheduleLogic';
+import { getTimetableForDate, getSimplifiedSubject } from '@/lib/utils/scheduleLogic';
 import { Clock, CheckCircle, XCircle, ShieldCheck, Calendar, Zap, Layout, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -31,8 +31,14 @@ const TodayView: React.FC = () => {
   const activeLectures = useMemo(() => Object.entries(schedule).filter(([_, sub]) => !!sub), [schedule]);
 
   const doneCount = useMemo(() => {
-    return overrides.filter(o => o.date === dateStr && o.status === 'done').length;
-  }, [overrides, dateStr]);
+    return overrides.filter(o => 
+      o.date === dateStr && 
+      o.status === 'done' && 
+      activeLectures.some(([slotId, sub]) => 
+        slotId === o.time_slot_id && getSimplifiedSubject(sub) === getSimplifiedSubject(o.subject)
+      )
+    ).length;
+  }, [overrides, dateStr, activeLectures]);
 
   if (!isLoaded) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -125,7 +131,11 @@ const TodayView: React.FC = () => {
             const subject = schedule[slot.id];
             if (!subject) return null;
 
-            const override = overrides.find(o => o.date === dateStr && o.time_slot_id === slot.id);
+            const override = overrides.find(o => 
+              o.date === dateStr && 
+              o.time_slot_id === slot.id && 
+              getSimplifiedSubject(o.subject) === getSimplifiedSubject(subject)
+            );
             const status = override?.status || 'pending';
 
             return (
