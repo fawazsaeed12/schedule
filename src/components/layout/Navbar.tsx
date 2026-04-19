@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Shield, Key, Lock, Unlock, LayoutDashboard, Database, History, Calculator } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useSchedule } from '@/context/ScheduleContext';
 import { verifyAdminKey } from '@/lib/actions';
 import { clsx, type ClassValue } from 'clsx';

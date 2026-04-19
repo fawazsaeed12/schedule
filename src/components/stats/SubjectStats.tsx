@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useSchedule } from '@/context/ScheduleContext';
-import { ChevronDown, ChevronUp, BookOpen, CheckCircle, XCircle, Clock, TrendingUp, Award, AlertTriangle, ArrowUpDown } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen, CheckCircle, XCircle, Clock, TrendingUp, Award, AlertTriangle, ArrowUpDown, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
