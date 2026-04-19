@@ -75,20 +75,26 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const upsertOverride = async (override: AttendanceOverride) => {
-    const { error } = await supabase.from('attendance').upsert(override, {
+    // ALWAYS SIMPLIFY before storing to avoid naming collisions
+    const standardizedOverride = {
+      ...override,
+      subject: getSimplifiedSubject(override.subject)
+    };
+
+    const { error } = await supabase.from('attendance').upsert(standardizedOverride, {
       onConflict: 'date,subject,time_slot_id'
     });
     
     if (!error) {
       setOverrides(prev => {
         // MATCH BY SLOT: If a record exists for this date and slot, replace it regardless of naming
-        const existingIdx = prev.findIndex(o => o.date === override.date && o.time_slot_id === override.time_slot_id);
+        const existingIdx = prev.findIndex(o => o.date === standardizedOverride.date && o.time_slot_id === standardizedOverride.time_slot_id);
         if (existingIdx !== -1) {
           const newOverrides = [...prev];
-          newOverrides[existingIdx] = override;
+          newOverrides[existingIdx] = standardizedOverride;
           return newOverrides;
         }
-        return [...prev, override];
+        return [...prev, standardizedOverride];
       });
     }
   };

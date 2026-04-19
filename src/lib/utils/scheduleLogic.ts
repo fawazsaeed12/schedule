@@ -29,13 +29,23 @@ export const getSimplifiedSubject = (name: string): string => {
   if (!name) return name;
   let simplified = name.split(' (')[0].trim();
   
-  // Normalize common variations to ensure historical matching
+  // Normalize common variations and abbreviations
   if (simplified === "Expository Writing") simplified = "Expository Writings";
+  if (simplified.includes("Object Oriented Programming")) simplified = "Object Oriented Programming";
+  if (simplified.includes("OOP")) simplified = "Object Oriented Programming";
+  if (simplified.includes("Digital Logic Design")) simplified = "Digital Logic Design";
+  if (simplified.includes("DLD")) simplified = "Digital Logic Design";
+  if (simplified.includes("Islamic Studies")) simplified = "Islamic Studies";
+  if (simplified.includes("Holy Quran")) simplified = "Understanding of Holy Quran 2";
+  if (simplified.includes("Discrete Structures")) simplified = "Discrete Structures";
+  if (simplified.includes("Basic Mathematics")) simplified = "Basic Mathematics-II";
+  if (simplified.includes("Professional Practices")) simplified = "Professional Practices";
   
   // Special case for labs
-  if (simplified.includes(' Lab')) {
-    return simplified.split(' Lab')[0].trim() + ' Lab';
+  if (name.toLowerCase().includes('lab')) {
+    return simplified + ' Lab';
   }
+  
   return simplified;
 };
 
